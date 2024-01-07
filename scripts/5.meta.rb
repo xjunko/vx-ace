@@ -23,6 +23,7 @@ class Game_Player < Game_Character
 end
 
 $dldb_setting = Dldb_Setting.new
+
 if FileTest.exist?("dldb.info") == false
   $dldb_setting.cheat_save
 else
@@ -30,9 +31,10 @@ else
 end
 
 module DLDB
+  Name = "[DLDB] Open"
   Shop = "Cheat Shop"
   Tel = "Teleport"
-  Lv = "Lv Change"
+  Lv = "Level Change Change"
   Setting1 = "Setting - ALL -"
   Setting2 = "Setting - This -"
   Sound = "Sound"

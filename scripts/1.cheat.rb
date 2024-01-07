@@ -138,10 +138,14 @@ end
 #치트 초기 메뉴창 설정
 class Window_CheatCommand < Window_Command
   def make_command_list
+    add_command(DLDB::Name, :DLDB_Open)
+  end
+end
+
+class Window_DLDBMenu < Window_CheatCommand
+  def make_command_list()
     add_command(DLDB::Shop, :shop)
-    if FileTest.exist?("tel.txt")
-      add_command(DLDB::Tel, :tel)
-    end
+    add_command(DLDB::Tel, :tel) if FileTest.exist?("tel.txt")
     add_command(DLDB::Lv, :lv_edit)
     add_command(DLDB::Setting1, :setting_edit1)
     add_command(DLDB::Setting2, :setting_edit2)
@@ -159,14 +163,28 @@ class Scene_Cheat < Scene_MenuBase
 
   def create_command_window
     @cheat_window = Window_CheatCommand.new
-    @cheat_window.set_handler(:shop, method(:dldb_shop))
-    @cheat_window.set_handler(:tel, method(:dldb_tel))
-    @cheat_window.set_handler(:lv_edit, method(:dldb_lv))
-    @cheat_window.set_handler(:setting_edit1, method(:dldb_setting1))
-    @cheat_window.set_handler(:setting_edit2, method(:dldb_setting2))
-    @cheat_window.set_handler(:screen_full, method(:screen_full))
-    @cheat_window.set_handler(:screen_change, method(:screen_change))
+    @cheat_window.set_handler(:DLDB_Open, method(:DLDB_Open))
     @cheat_window.set_handler(:cancel, method(:return_scene))
+  end
+
+  def DLDB_Open()
+    if !@DLDB_Open
+      @DLDB_Open = Window_DLDBMenu.new()
+      @DLDB_Open.set_handler(:shop, method(:dldb_shop))
+      @DLDB_Open.set_handler(:tel, method(:dldb_tel))
+      @DLDB_Open.set_handler(:lv_edit, method(:dldb_lv))
+      @DLDB_Open.set_handler(:setting_edit1, method(:dldb_setting1))
+      @DLDB_Open.set_handler(:setting_edit2, method(:dldb_setting2))
+      @DLDB_Open.set_handler(:screen_full, method(:screen_full))
+      @DLDB_Open.set_handler(:screen_change, method(:screen_change))
+      @DLDB_Open.set_handler(:cancel, method(:DLDB_Close))
+    end
+
+    show_sub_window(@DLDB_Open)
+  end
+
+  def DLDB_Close()
+    hide_sub_window(@DLDB_Open)
   end
 end
 
@@ -183,9 +201,20 @@ end
 class Scene_Cheat < Scene_MenuBase
   def dldb_shop_start(item)
     goods = []
+
+    # Internal Item.
     for i in item[0]...item[1] + 1
       goods.push([0, i, 1, 0]) if $data_items[i].name != ""
     end
+
+    # Game Item
+    [$data_items, $data_weapons, $data_armors].each do |data_list|
+      data_list.each do |item|
+        next if item.nil? || item.name == ""
+        goods.push([0, item.id, 1, 0])
+      end
+    end
+
     return_scene
     SceneManager.call(Scene_Shop)
     SceneManager.scene.prepare(goods, false)
@@ -255,7 +284,7 @@ class Scene_Cheat < Scene_MenuBase
       @edit_lv = Edit_Interpreter.new()
     end
     @edit_lv.lv_change(lv)
-    @edit_lv.text("레벨이 " + lv.to_s + "가 되었습니다.")
+    @edit_lv.text("Level changed to " + lv.to_s + "!")
     return_scene
   end
 end
