@@ -9,6 +9,7 @@ My own version of the long lost DLDB's script injection thingamajig.
 # How to use
 - Download from [here](https://codeload.github.com/xjunko/vx-ace/zip/refs/heads/master) and extract it in your game directory.
 - Launch the `Game_Cheat.exe`, wait for it to patch, relaunch.
+- When in game (not in the main menu, remember that), press `F8` to open the Cheat Window.
 - Profit.
 
 # Preview
